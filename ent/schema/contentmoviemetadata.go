@@ -38,6 +38,7 @@ func (ContentMovieMetadata) Edges() []ent.Edge {
 	return []ent.Edge{
 		edge.From("content", Content.Type).
 			Ref("content_movie_metadata").
+			Required().
 			Unique(),
 	}
 }

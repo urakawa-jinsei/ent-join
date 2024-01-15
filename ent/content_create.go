@@ -50,6 +50,14 @@ func (cc *ContentCreate) SetContentMovieMetadataID(id string) *ContentCreate {
 	return cc
 }
 
+// SetNillableContentMovieMetadataID sets the "content_movie_metadata" edge to the ContentMovieMetadata entity by ID if the given value is not nil.
+func (cc *ContentCreate) SetNillableContentMovieMetadataID(id *string) *ContentCreate {
+	if id != nil {
+		cc = cc.SetContentMovieMetadataID(*id)
+	}
+	return cc
+}
+
 // SetContentMovieMetadata sets the "content_movie_metadata" edge to the ContentMovieMetadata entity.
 func (cc *ContentCreate) SetContentMovieMetadata(c *ContentMovieMetadata) *ContentCreate {
 	return cc.SetContentMovieMetadataID(c.ID)
@@ -99,9 +107,6 @@ func (cc *ContentCreate) check() error {
 	}
 	if _, ok := cc.mutation.UploadedContentID(); !ok {
 		return &ValidationError{Name: "uploaded_content", err: errors.New(`ent: missing required edge "Content.uploaded_content"`)}
-	}
-	if _, ok := cc.mutation.ContentMovieMetadataID(); !ok {
-		return &ValidationError{Name: "content_movie_metadata", err: errors.New(`ent: missing required edge "Content.content_movie_metadata"`)}
 	}
 	return nil
 }

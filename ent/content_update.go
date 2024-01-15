@@ -60,6 +60,14 @@ func (cu *ContentUpdate) SetContentMovieMetadataID(id string) *ContentUpdate {
 	return cu
 }
 
+// SetNillableContentMovieMetadataID sets the "content_movie_metadata" edge to the ContentMovieMetadata entity by ID if the given value is not nil.
+func (cu *ContentUpdate) SetNillableContentMovieMetadataID(id *string) *ContentUpdate {
+	if id != nil {
+		cu = cu.SetContentMovieMetadataID(*id)
+	}
+	return cu
+}
+
 // SetContentMovieMetadata sets the "content_movie_metadata" edge to the ContentMovieMetadata entity.
 func (cu *ContentUpdate) SetContentMovieMetadata(c *ContentMovieMetadata) *ContentUpdate {
 	return cu.SetContentMovieMetadataID(c.ID)
@@ -113,9 +121,6 @@ func (cu *ContentUpdate) ExecX(ctx context.Context) {
 func (cu *ContentUpdate) check() error {
 	if _, ok := cu.mutation.UploadedContentID(); cu.mutation.UploadedContentCleared() && !ok {
 		return errors.New(`ent: clearing a required unique edge "Content.uploaded_content"`)
-	}
-	if _, ok := cu.mutation.ContentMovieMetadataID(); cu.mutation.ContentMovieMetadataCleared() && !ok {
-		return errors.New(`ent: clearing a required unique edge "Content.content_movie_metadata"`)
 	}
 	return nil
 }
@@ -241,6 +246,14 @@ func (cuo *ContentUpdateOne) SetContentMovieMetadataID(id string) *ContentUpdate
 	return cuo
 }
 
+// SetNillableContentMovieMetadataID sets the "content_movie_metadata" edge to the ContentMovieMetadata entity by ID if the given value is not nil.
+func (cuo *ContentUpdateOne) SetNillableContentMovieMetadataID(id *string) *ContentUpdateOne {
+	if id != nil {
+		cuo = cuo.SetContentMovieMetadataID(*id)
+	}
+	return cuo
+}
+
 // SetContentMovieMetadata sets the "content_movie_metadata" edge to the ContentMovieMetadata entity.
 func (cuo *ContentUpdateOne) SetContentMovieMetadata(c *ContentMovieMetadata) *ContentUpdateOne {
 	return cuo.SetContentMovieMetadataID(c.ID)
@@ -307,9 +320,6 @@ func (cuo *ContentUpdateOne) ExecX(ctx context.Context) {
 func (cuo *ContentUpdateOne) check() error {
 	if _, ok := cuo.mutation.UploadedContentID(); cuo.mutation.UploadedContentCleared() && !ok {
 		return errors.New(`ent: clearing a required unique edge "Content.uploaded_content"`)
-	}
-	if _, ok := cuo.mutation.ContentMovieMetadataID(); cuo.mutation.ContentMovieMetadataCleared() && !ok {
-		return errors.New(`ent: clearing a required unique edge "Content.content_movie_metadata"`)
 	}
 	return nil
 }

@@ -44,14 +44,6 @@ func (cmmc *ContentMovieMetadataCreate) SetContentID(id string) *ContentMovieMet
 	return cmmc
 }
 
-// SetNillableContentID sets the "content" edge to the Content entity by ID if the given value is not nil.
-func (cmmc *ContentMovieMetadataCreate) SetNillableContentID(id *string) *ContentMovieMetadataCreate {
-	if id != nil {
-		cmmc = cmmc.SetContentID(*id)
-	}
-	return cmmc
-}
-
 // SetContent sets the "content" edge to the Content entity.
 func (cmmc *ContentMovieMetadataCreate) SetContent(c *Content) *ContentMovieMetadataCreate {
 	return cmmc.SetContentID(c.ID)
@@ -101,6 +93,9 @@ func (cmmc *ContentMovieMetadataCreate) check() error {
 		if err := contentmoviemetadata.IDValidator(v); err != nil {
 			return &ValidationError{Name: "id", err: fmt.Errorf(`ent: validator failed for field "ContentMovieMetadata.id": %w`, err)}
 		}
+	}
+	if _, ok := cmmc.mutation.ContentID(); !ok {
+		return &ValidationError{Name: "content", err: errors.New(`ent: missing required edge "ContentMovieMetadata.content"`)}
 	}
 	return nil
 }
