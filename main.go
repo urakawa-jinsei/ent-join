@@ -14,6 +14,22 @@ import (
 )
 
 func main() {
+	Query()
+}
+
+// Open new connection
+func Open(databaseUrl string) *ent.Client {
+	db, err := sql.Open("pgx", databaseUrl)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// Create an ent.Driver from `db`.
+	drv := entsql.OpenDB(dialect.Postgres, db)
+	return ent.NewClient(ent.Driver(drv))
+}
+
+func Query() {
 	client := Open("postgresql://postgres:postgres@127.0.0.1/postgres")
 
 	// migrate
@@ -36,16 +52,4 @@ func main() {
 		log.Fatal(err)
 	}
 	log.Println(count)
-}
-
-// Open new connection
-func Open(databaseUrl string) *ent.Client {
-	db, err := sql.Open("pgx", databaseUrl)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	// Create an ent.Driver from `db`.
-	drv := entsql.OpenDB(dialect.Postgres, db)
-	return ent.NewClient(ent.Driver(drv))
 }
