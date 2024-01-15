@@ -23,6 +23,7 @@ type ContentMovieMetadataQuery struct {
 	inters      []Interceptor
 	predicates  []predicate.ContentMovieMetadata
 	withContent *ContentQuery
+	modifiers   []func(*sql.Selector)
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -382,6 +383,9 @@ func (cmmq *ContentMovieMetadataQuery) sqlAll(ctx context.Context, hooks ...quer
 		node.Edges.loadedTypes = loadedTypes
 		return node.assignValues(columns, values)
 	}
+	if len(cmmq.modifiers) > 0 {
+		_spec.Modifiers = cmmq.modifiers
+	}
 	for i := range hooks {
 		hooks[i](ctx, _spec)
 	}
@@ -432,6 +436,9 @@ func (cmmq *ContentMovieMetadataQuery) loadContent(ctx context.Context, query *C
 
 func (cmmq *ContentMovieMetadataQuery) sqlCount(ctx context.Context) (int, error) {
 	_spec := cmmq.querySpec()
+	if len(cmmq.modifiers) > 0 {
+		_spec.Modifiers = cmmq.modifiers
+	}
 	_spec.Node.Columns = cmmq.ctx.Fields
 	if len(cmmq.ctx.Fields) > 0 {
 		_spec.Unique = cmmq.ctx.Unique != nil && *cmmq.ctx.Unique
@@ -494,6 +501,9 @@ func (cmmq *ContentMovieMetadataQuery) sqlQuery(ctx context.Context) *sql.Select
 	if cmmq.ctx.Unique != nil && *cmmq.ctx.Unique {
 		selector.Distinct()
 	}
+	for _, m := range cmmq.modifiers {
+		m(selector)
+	}
 	for _, p := range cmmq.predicates {
 		p(selector)
 	}
@@ -509,6 +519,12 @@ func (cmmq *ContentMovieMetadataQuery) sqlQuery(ctx context.Context) *sql.Select
 		selector.Limit(*limit)
 	}
 	return selector
+}
+
+// Modify adds a query modifier for attaching custom logic to queries.
+func (cmmq *ContentMovieMetadataQuery) Modify(modifiers ...func(s *sql.Selector)) *ContentMovieMetadataSelect {
+	cmmq.modifiers = append(cmmq.modifiers, modifiers...)
+	return cmmq.Select()
 }
 
 // ContentMovieMetadataGroupBy is the group-by builder for ContentMovieMetadata entities.
@@ -599,4 +615,10 @@ func (cmms *ContentMovieMetadataSelect) sqlScan(ctx context.Context, root *Conte
 	}
 	defer rows.Close()
 	return sql.ScanSlice(rows, v)
+}
+
+// Modify adds a query modifier for attaching custom logic to queries.
+func (cmms *ContentMovieMetadataSelect) Modify(modifiers ...func(s *sql.Selector)) *ContentMovieMetadataSelect {
+	cmms.modifiers = append(cmms.modifiers, modifiers...)
+	return cmms
 }

@@ -18,8 +18,9 @@ import (
 // UploadedContentUpdate is the builder for updating UploadedContent entities.
 type UploadedContentUpdate struct {
 	config
-	hooks    []Hook
-	mutation *UploadedContentMutation
+	hooks     []Hook
+	mutation  *UploadedContentMutation
+	modifiers []func(*sql.UpdateBuilder)
 }
 
 // Where appends a list predicates to the UploadedContentUpdate builder.
@@ -96,6 +97,12 @@ func (ucu *UploadedContentUpdate) ExecX(ctx context.Context) {
 	}
 }
 
+// Modify adds a statement modifier for attaching custom logic to the UPDATE statement.
+func (ucu *UploadedContentUpdate) Modify(modifiers ...func(u *sql.UpdateBuilder)) *UploadedContentUpdate {
+	ucu.modifiers = append(ucu.modifiers, modifiers...)
+	return ucu
+}
+
 func (ucu *UploadedContentUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	_spec := sqlgraph.NewUpdateSpec(uploadedcontent.Table, uploadedcontent.Columns, sqlgraph.NewFieldSpec(uploadedcontent.FieldID, field.TypeString))
 	if ps := ucu.mutation.predicates; len(ps) > 0 {
@@ -150,6 +157,7 @@ func (ucu *UploadedContentUpdate) sqlSave(ctx context.Context) (n int, err error
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
+	_spec.AddModifiers(ucu.modifiers...)
 	if n, err = sqlgraph.UpdateNodes(ctx, ucu.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{uploadedcontent.Label}
@@ -165,9 +173,10 @@ func (ucu *UploadedContentUpdate) sqlSave(ctx context.Context) (n int, err error
 // UploadedContentUpdateOne is the builder for updating a single UploadedContent entity.
 type UploadedContentUpdateOne struct {
 	config
-	fields   []string
-	hooks    []Hook
-	mutation *UploadedContentMutation
+	fields    []string
+	hooks     []Hook
+	mutation  *UploadedContentMutation
+	modifiers []func(*sql.UpdateBuilder)
 }
 
 // AddContentIDs adds the "contents" edge to the Content entity by IDs.
@@ -251,6 +260,12 @@ func (ucuo *UploadedContentUpdateOne) ExecX(ctx context.Context) {
 	}
 }
 
+// Modify adds a statement modifier for attaching custom logic to the UPDATE statement.
+func (ucuo *UploadedContentUpdateOne) Modify(modifiers ...func(u *sql.UpdateBuilder)) *UploadedContentUpdateOne {
+	ucuo.modifiers = append(ucuo.modifiers, modifiers...)
+	return ucuo
+}
+
 func (ucuo *UploadedContentUpdateOne) sqlSave(ctx context.Context) (_node *UploadedContent, err error) {
 	_spec := sqlgraph.NewUpdateSpec(uploadedcontent.Table, uploadedcontent.Columns, sqlgraph.NewFieldSpec(uploadedcontent.FieldID, field.TypeString))
 	id, ok := ucuo.mutation.ID()
@@ -322,6 +337,7 @@ func (ucuo *UploadedContentUpdateOne) sqlSave(ctx context.Context) (_node *Uploa
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
+	_spec.AddModifiers(ucuo.modifiers...)
 	_node = &UploadedContent{config: ucuo.config}
 	_spec.Assign = _node.assignValues
 	_spec.ScanValues = _node.scanValues

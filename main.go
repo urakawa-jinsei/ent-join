@@ -8,7 +8,7 @@ import (
 	"entgo.io/ent/dialect"
 	entsql "entgo.io/ent/dialect/sql"
 	"github.com/ent-join/ent"
-	"github.com/ent-join/ent/contentmoviemetadata"
+	"github.com/ent-join/ent/content"
 	"github.com/ent-join/ent/uploadedcontent"
 	_ "github.com/jackc/pgx/v5/stdlib"
 )
@@ -38,18 +38,20 @@ func Query() {
 		log.Fatal(err)
 	}
 
-	count, err := client.Debug().UploadedContent.Query().
+	// INNER JOIN
+	cnt, err := client.Debug().UploadedContent.Query().
 		Where(uploadedcontent.ID("sample1.mp4")).
-		QueryContents().
-		QueryContentMovieMetadata().
-		Where(
-			contentmoviemetadata.And(
-				contentmoviemetadata.Width(1920),
-				contentmoviemetadata.Height(1080),
-			)).
+		Modify(func(s *entsql.Selector) {
+			t := entsql.Table(uploadedcontent.ContentsTable)
+			s.Join(t).
+				On(
+					s.C(uploadedcontent.FieldID),
+					t.C(content.FieldUploadedContentFilename),
+				)
+		}).
 		Count(ctx)
 	if err != nil {
 		log.Fatal(err)
 	}
-	log.Println(count)
+	log.Println(cnt)
 }

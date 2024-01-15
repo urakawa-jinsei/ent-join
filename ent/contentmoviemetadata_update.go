@@ -18,8 +18,9 @@ import (
 // ContentMovieMetadataUpdate is the builder for updating ContentMovieMetadata entities.
 type ContentMovieMetadataUpdate struct {
 	config
-	hooks    []Hook
-	mutation *ContentMovieMetadataMutation
+	hooks     []Hook
+	mutation  *ContentMovieMetadataMutation
+	modifiers []func(*sql.UpdateBuilder)
 }
 
 // Where appends a list predicates to the ContentMovieMetadataUpdate builder.
@@ -127,6 +128,12 @@ func (cmmu *ContentMovieMetadataUpdate) check() error {
 	return nil
 }
 
+// Modify adds a statement modifier for attaching custom logic to the UPDATE statement.
+func (cmmu *ContentMovieMetadataUpdate) Modify(modifiers ...func(u *sql.UpdateBuilder)) *ContentMovieMetadataUpdate {
+	cmmu.modifiers = append(cmmu.modifiers, modifiers...)
+	return cmmu
+}
+
 func (cmmu *ContentMovieMetadataUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if err := cmmu.check(); err != nil {
 		return n, err
@@ -180,6 +187,7 @@ func (cmmu *ContentMovieMetadataUpdate) sqlSave(ctx context.Context) (n int, err
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
+	_spec.AddModifiers(cmmu.modifiers...)
 	if n, err = sqlgraph.UpdateNodes(ctx, cmmu.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{contentmoviemetadata.Label}
@@ -195,9 +203,10 @@ func (cmmu *ContentMovieMetadataUpdate) sqlSave(ctx context.Context) (n int, err
 // ContentMovieMetadataUpdateOne is the builder for updating a single ContentMovieMetadata entity.
 type ContentMovieMetadataUpdateOne struct {
 	config
-	fields   []string
-	hooks    []Hook
-	mutation *ContentMovieMetadataMutation
+	fields    []string
+	hooks     []Hook
+	mutation  *ContentMovieMetadataMutation
+	modifiers []func(*sql.UpdateBuilder)
 }
 
 // SetWidth sets the "width" field.
@@ -312,6 +321,12 @@ func (cmmuo *ContentMovieMetadataUpdateOne) check() error {
 	return nil
 }
 
+// Modify adds a statement modifier for attaching custom logic to the UPDATE statement.
+func (cmmuo *ContentMovieMetadataUpdateOne) Modify(modifiers ...func(u *sql.UpdateBuilder)) *ContentMovieMetadataUpdateOne {
+	cmmuo.modifiers = append(cmmuo.modifiers, modifiers...)
+	return cmmuo
+}
+
 func (cmmuo *ContentMovieMetadataUpdateOne) sqlSave(ctx context.Context) (_node *ContentMovieMetadata, err error) {
 	if err := cmmuo.check(); err != nil {
 		return _node, err
@@ -382,6 +397,7 @@ func (cmmuo *ContentMovieMetadataUpdateOne) sqlSave(ctx context.Context) (_node 
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
+	_spec.AddModifiers(cmmuo.modifiers...)
 	_node = &ContentMovieMetadata{config: cmmuo.config}
 	_spec.Assign = _node.assignValues
 	_spec.ScanValues = _node.scanValues

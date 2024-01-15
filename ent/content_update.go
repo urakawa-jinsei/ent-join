@@ -19,8 +19,9 @@ import (
 // ContentUpdate is the builder for updating Content entities.
 type ContentUpdate struct {
 	config
-	hooks    []Hook
-	mutation *ContentMutation
+	hooks     []Hook
+	mutation  *ContentMutation
+	modifiers []func(*sql.UpdateBuilder)
 }
 
 // Where appends a list predicates to the ContentUpdate builder.
@@ -125,6 +126,12 @@ func (cu *ContentUpdate) check() error {
 	return nil
 }
 
+// Modify adds a statement modifier for attaching custom logic to the UPDATE statement.
+func (cu *ContentUpdate) Modify(modifiers ...func(u *sql.UpdateBuilder)) *ContentUpdate {
+	cu.modifiers = append(cu.modifiers, modifiers...)
+	return cu
+}
+
 func (cu *ContentUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if err := cu.check(); err != nil {
 		return n, err
@@ -195,6 +202,7 @@ func (cu *ContentUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
+	_spec.AddModifiers(cu.modifiers...)
 	if n, err = sqlgraph.UpdateNodes(ctx, cu.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{content.Label}
@@ -210,9 +218,10 @@ func (cu *ContentUpdate) sqlSave(ctx context.Context) (n int, err error) {
 // ContentUpdateOne is the builder for updating a single Content entity.
 type ContentUpdateOne struct {
 	config
-	fields   []string
-	hooks    []Hook
-	mutation *ContentMutation
+	fields    []string
+	hooks     []Hook
+	mutation  *ContentMutation
+	modifiers []func(*sql.UpdateBuilder)
 }
 
 // SetUploadedContentFilename sets the "uploaded_content_filename" field.
@@ -324,6 +333,12 @@ func (cuo *ContentUpdateOne) check() error {
 	return nil
 }
 
+// Modify adds a statement modifier for attaching custom logic to the UPDATE statement.
+func (cuo *ContentUpdateOne) Modify(modifiers ...func(u *sql.UpdateBuilder)) *ContentUpdateOne {
+	cuo.modifiers = append(cuo.modifiers, modifiers...)
+	return cuo
+}
+
 func (cuo *ContentUpdateOne) sqlSave(ctx context.Context) (_node *Content, err error) {
 	if err := cuo.check(); err != nil {
 		return _node, err
@@ -411,6 +426,7 @@ func (cuo *ContentUpdateOne) sqlSave(ctx context.Context) (_node *Content, err e
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
+	_spec.AddModifiers(cuo.modifiers...)
 	_node = &Content{config: cuo.config}
 	_spec.Assign = _node.assignValues
 	_spec.ScanValues = _node.scanValues
