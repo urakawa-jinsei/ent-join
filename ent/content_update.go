@@ -60,14 +60,6 @@ func (cu *ContentUpdate) SetContentMovieMetadataID(id string) *ContentUpdate {
 	return cu
 }
 
-// SetNillableContentMovieMetadataID sets the "content_movie_metadata" edge to the ContentMovieMetadata entity by ID if the given value is not nil.
-func (cu *ContentUpdate) SetNillableContentMovieMetadataID(id *string) *ContentUpdate {
-	if id != nil {
-		cu = cu.SetContentMovieMetadataID(*id)
-	}
-	return cu
-}
-
 // SetContentMovieMetadata sets the "content_movie_metadata" edge to the ContentMovieMetadata entity.
 func (cu *ContentUpdate) SetContentMovieMetadata(c *ContentMovieMetadata) *ContentUpdate {
 	return cu.SetContentMovieMetadataID(c.ID)
@@ -122,6 +114,9 @@ func (cu *ContentUpdate) check() error {
 	if _, ok := cu.mutation.UploadedContentID(); cu.mutation.UploadedContentCleared() && !ok {
 		return errors.New(`ent: clearing a required unique edge "Content.uploaded_content"`)
 	}
+	if _, ok := cu.mutation.ContentMovieMetadataID(); cu.mutation.ContentMovieMetadataCleared() && !ok {
+		return errors.New(`ent: clearing a required unique edge "Content.content_movie_metadata"`)
+	}
 	return nil
 }
 
@@ -169,7 +164,7 @@ func (cu *ContentUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if cu.mutation.ContentMovieMetadataCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2O,
-			Inverse: true,
+			Inverse: false,
 			Table:   content.ContentMovieMetadataTable,
 			Columns: []string{content.ContentMovieMetadataColumn},
 			Bidi:    false,
@@ -182,7 +177,7 @@ func (cu *ContentUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if nodes := cu.mutation.ContentMovieMetadataIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2O,
-			Inverse: true,
+			Inverse: false,
 			Table:   content.ContentMovieMetadataTable,
 			Columns: []string{content.ContentMovieMetadataColumn},
 			Bidi:    false,
@@ -243,14 +238,6 @@ func (cuo *ContentUpdateOne) SetUploadedContent(u *UploadedContent) *ContentUpda
 // SetContentMovieMetadataID sets the "content_movie_metadata" edge to the ContentMovieMetadata entity by ID.
 func (cuo *ContentUpdateOne) SetContentMovieMetadataID(id string) *ContentUpdateOne {
 	cuo.mutation.SetContentMovieMetadataID(id)
-	return cuo
-}
-
-// SetNillableContentMovieMetadataID sets the "content_movie_metadata" edge to the ContentMovieMetadata entity by ID if the given value is not nil.
-func (cuo *ContentUpdateOne) SetNillableContentMovieMetadataID(id *string) *ContentUpdateOne {
-	if id != nil {
-		cuo = cuo.SetContentMovieMetadataID(*id)
-	}
 	return cuo
 }
 
@@ -321,6 +308,9 @@ func (cuo *ContentUpdateOne) check() error {
 	if _, ok := cuo.mutation.UploadedContentID(); cuo.mutation.UploadedContentCleared() && !ok {
 		return errors.New(`ent: clearing a required unique edge "Content.uploaded_content"`)
 	}
+	if _, ok := cuo.mutation.ContentMovieMetadataID(); cuo.mutation.ContentMovieMetadataCleared() && !ok {
+		return errors.New(`ent: clearing a required unique edge "Content.content_movie_metadata"`)
+	}
 	return nil
 }
 
@@ -385,7 +375,7 @@ func (cuo *ContentUpdateOne) sqlSave(ctx context.Context) (_node *Content, err e
 	if cuo.mutation.ContentMovieMetadataCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2O,
-			Inverse: true,
+			Inverse: false,
 			Table:   content.ContentMovieMetadataTable,
 			Columns: []string{content.ContentMovieMetadataColumn},
 			Bidi:    false,
@@ -398,7 +388,7 @@ func (cuo *ContentUpdateOne) sqlSave(ctx context.Context) (_node *Content, err e
 	if nodes := cuo.mutation.ContentMovieMetadataIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2O,
-			Inverse: true,
+			Inverse: false,
 			Table:   content.ContentMovieMetadataTable,
 			Columns: []string{content.ContentMovieMetadataColumn},
 			Bidi:    false,

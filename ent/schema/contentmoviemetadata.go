@@ -36,9 +36,8 @@ func (ContentMovieMetadata) Fields() []ent.Field {
 // Edges of the ContentMovieMetadata.
 func (ContentMovieMetadata) Edges() []ent.Edge {
 	return []ent.Edge{
-		edge.To("content", Content.Type).
-			StorageKey(edge.Column("filename")).
-			Unique().
-			Required(),
+		edge.From("content", Content.Type).
+			Ref("content_movie_metadata").
+			Unique(),
 	}
 }

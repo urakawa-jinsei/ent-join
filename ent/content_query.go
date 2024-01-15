@@ -4,6 +4,7 @@ package ent
 
 import (
 	"context"
+	"database/sql/driver"
 	"fmt"
 	"math"
 
@@ -97,7 +98,7 @@ func (cq *ContentQuery) QueryContentMovieMetadata() *ContentMovieMetadataQuery {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(content.Table, content.FieldID, selector),
 			sqlgraph.To(contentmoviemetadata.Table, contentmoviemetadata.FieldID),
-			sqlgraph.Edge(sqlgraph.O2O, true, content.ContentMovieMetadataTable, content.ContentMovieMetadataColumn),
+			sqlgraph.Edge(sqlgraph.O2O, false, content.ContentMovieMetadataTable, content.ContentMovieMetadataColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(cq.driver.Dialect(), step)
 		return fromU, nil
@@ -473,31 +474,26 @@ func (cq *ContentQuery) loadUploadedContent(ctx context.Context, query *Uploaded
 	return nil
 }
 func (cq *ContentQuery) loadContentMovieMetadata(ctx context.Context, query *ContentMovieMetadataQuery, nodes []*Content, init func(*Content), assign func(*Content, *ContentMovieMetadata)) error {
-	ids := make([]string, 0, len(nodes))
-	nodeids := make(map[string][]*Content)
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[string]*Content)
 	for i := range nodes {
-		fk := nodes[i].ID
-		if _, ok := nodeids[fk]; !ok {
-			ids = append(ids, fk)
-		}
-		nodeids[fk] = append(nodeids[fk], nodes[i])
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
 	}
-	if len(ids) == 0 {
-		return nil
-	}
-	query.Where(contentmoviemetadata.IDIn(ids...))
+	query.Where(predicate.ContentMovieMetadata(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(content.ContentMovieMetadataColumn), fks...))
+	}))
 	neighbors, err := query.All(ctx)
 	if err != nil {
 		return err
 	}
 	for _, n := range neighbors {
-		nodes, ok := nodeids[n.ID]
+		fk := n.ID
+		node, ok := nodeids[fk]
 		if !ok {
-			return fmt.Errorf(`unexpected foreign-key "id" returned %v`, n.ID)
+			return fmt.Errorf(`unexpected referenced foreign-key "id" returned %v for node %v`, fk, n.ID)
 		}
-		for i := range nodes {
-			assign(nodes[i], n)
-		}
+		assign(node, n)
 	}
 	return nil
 }

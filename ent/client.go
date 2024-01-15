@@ -349,7 +349,7 @@ func (c *ContentClient) QueryContentMovieMetadata(co *Content) *ContentMovieMeta
 		step := sqlgraph.NewStep(
 			sqlgraph.From(content.Table, content.FieldID, id),
 			sqlgraph.To(contentmoviemetadata.Table, contentmoviemetadata.FieldID),
-			sqlgraph.Edge(sqlgraph.O2O, true, content.ContentMovieMetadataTable, content.ContentMovieMetadataColumn),
+			sqlgraph.Edge(sqlgraph.O2O, false, content.ContentMovieMetadataTable, content.ContentMovieMetadataColumn),
 		)
 		fromV = sqlgraph.Neighbors(co.driver.Dialect(), step)
 		return fromV, nil
@@ -498,7 +498,7 @@ func (c *ContentMovieMetadataClient) QueryContent(cmm *ContentMovieMetadata) *Co
 		step := sqlgraph.NewStep(
 			sqlgraph.From(contentmoviemetadata.Table, contentmoviemetadata.FieldID, id),
 			sqlgraph.To(content.Table, content.FieldID),
-			sqlgraph.Edge(sqlgraph.O2O, false, contentmoviemetadata.ContentTable, contentmoviemetadata.ContentColumn),
+			sqlgraph.Edge(sqlgraph.O2O, true, contentmoviemetadata.ContentTable, contentmoviemetadata.ContentColumn),
 		)
 		fromV = sqlgraph.Neighbors(cmm.driver.Dialect(), step)
 		return fromV, nil

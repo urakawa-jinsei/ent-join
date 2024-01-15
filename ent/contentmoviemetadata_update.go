@@ -76,6 +76,14 @@ func (cmmu *ContentMovieMetadataUpdate) SetContentID(id string) *ContentMovieMet
 	return cmmu
 }
 
+// SetNillableContentID sets the "content" edge to the Content entity by ID if the given value is not nil.
+func (cmmu *ContentMovieMetadataUpdate) SetNillableContentID(id *string) *ContentMovieMetadataUpdate {
+	if id != nil {
+		cmmu = cmmu.SetContentID(*id)
+	}
+	return cmmu
+}
+
 // SetContent sets the "content" edge to the Content entity.
 func (cmmu *ContentMovieMetadataUpdate) SetContent(c *Content) *ContentMovieMetadataUpdate {
 	return cmmu.SetContentID(c.ID)
@@ -119,18 +127,7 @@ func (cmmu *ContentMovieMetadataUpdate) ExecX(ctx context.Context) {
 	}
 }
 
-// check runs all checks and user-defined validators on the builder.
-func (cmmu *ContentMovieMetadataUpdate) check() error {
-	if _, ok := cmmu.mutation.ContentID(); cmmu.mutation.ContentCleared() && !ok {
-		return errors.New(`ent: clearing a required unique edge "ContentMovieMetadata.content"`)
-	}
-	return nil
-}
-
 func (cmmu *ContentMovieMetadataUpdate) sqlSave(ctx context.Context) (n int, err error) {
-	if err := cmmu.check(); err != nil {
-		return n, err
-	}
 	_spec := sqlgraph.NewUpdateSpec(contentmoviemetadata.Table, contentmoviemetadata.Columns, sqlgraph.NewFieldSpec(contentmoviemetadata.FieldID, field.TypeString))
 	if ps := cmmu.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
@@ -154,7 +151,7 @@ func (cmmu *ContentMovieMetadataUpdate) sqlSave(ctx context.Context) (n int, err
 	if cmmu.mutation.ContentCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2O,
-			Inverse: false,
+			Inverse: true,
 			Table:   contentmoviemetadata.ContentTable,
 			Columns: []string{contentmoviemetadata.ContentColumn},
 			Bidi:    false,
@@ -167,7 +164,7 @@ func (cmmu *ContentMovieMetadataUpdate) sqlSave(ctx context.Context) (n int, err
 	if nodes := cmmu.mutation.ContentIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2O,
-			Inverse: false,
+			Inverse: true,
 			Table:   contentmoviemetadata.ContentTable,
 			Columns: []string{contentmoviemetadata.ContentColumn},
 			Bidi:    false,
@@ -248,6 +245,14 @@ func (cmmuo *ContentMovieMetadataUpdateOne) SetContentID(id string) *ContentMovi
 	return cmmuo
 }
 
+// SetNillableContentID sets the "content" edge to the Content entity by ID if the given value is not nil.
+func (cmmuo *ContentMovieMetadataUpdateOne) SetNillableContentID(id *string) *ContentMovieMetadataUpdateOne {
+	if id != nil {
+		cmmuo = cmmuo.SetContentID(*id)
+	}
+	return cmmuo
+}
+
 // SetContent sets the "content" edge to the Content entity.
 func (cmmuo *ContentMovieMetadataUpdateOne) SetContent(c *Content) *ContentMovieMetadataUpdateOne {
 	return cmmuo.SetContentID(c.ID)
@@ -304,18 +309,7 @@ func (cmmuo *ContentMovieMetadataUpdateOne) ExecX(ctx context.Context) {
 	}
 }
 
-// check runs all checks and user-defined validators on the builder.
-func (cmmuo *ContentMovieMetadataUpdateOne) check() error {
-	if _, ok := cmmuo.mutation.ContentID(); cmmuo.mutation.ContentCleared() && !ok {
-		return errors.New(`ent: clearing a required unique edge "ContentMovieMetadata.content"`)
-	}
-	return nil
-}
-
 func (cmmuo *ContentMovieMetadataUpdateOne) sqlSave(ctx context.Context) (_node *ContentMovieMetadata, err error) {
-	if err := cmmuo.check(); err != nil {
-		return _node, err
-	}
 	_spec := sqlgraph.NewUpdateSpec(contentmoviemetadata.Table, contentmoviemetadata.Columns, sqlgraph.NewFieldSpec(contentmoviemetadata.FieldID, field.TypeString))
 	id, ok := cmmuo.mutation.ID()
 	if !ok {
@@ -356,7 +350,7 @@ func (cmmuo *ContentMovieMetadataUpdateOne) sqlSave(ctx context.Context) (_node 
 	if cmmuo.mutation.ContentCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2O,
-			Inverse: false,
+			Inverse: true,
 			Table:   contentmoviemetadata.ContentTable,
 			Columns: []string{contentmoviemetadata.ContentColumn},
 			Bidi:    false,
@@ -369,7 +363,7 @@ func (cmmuo *ContentMovieMetadataUpdateOne) sqlSave(ctx context.Context) (_node 
 	if nodes := cmmuo.mutation.ContentIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2O,
-			Inverse: false,
+			Inverse: true,
 			Table:   contentmoviemetadata.ContentTable,
 			Columns: []string{contentmoviemetadata.ContentColumn},
 			Bidi:    false,

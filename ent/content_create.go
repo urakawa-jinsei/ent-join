@@ -50,14 +50,6 @@ func (cc *ContentCreate) SetContentMovieMetadataID(id string) *ContentCreate {
 	return cc
 }
 
-// SetNillableContentMovieMetadataID sets the "content_movie_metadata" edge to the ContentMovieMetadata entity by ID if the given value is not nil.
-func (cc *ContentCreate) SetNillableContentMovieMetadataID(id *string) *ContentCreate {
-	if id != nil {
-		cc = cc.SetContentMovieMetadataID(*id)
-	}
-	return cc
-}
-
 // SetContentMovieMetadata sets the "content_movie_metadata" edge to the ContentMovieMetadata entity.
 func (cc *ContentCreate) SetContentMovieMetadata(c *ContentMovieMetadata) *ContentCreate {
 	return cc.SetContentMovieMetadataID(c.ID)
@@ -107,6 +99,9 @@ func (cc *ContentCreate) check() error {
 	}
 	if _, ok := cc.mutation.UploadedContentID(); !ok {
 		return &ValidationError{Name: "uploaded_content", err: errors.New(`ent: missing required edge "Content.uploaded_content"`)}
+	}
+	if _, ok := cc.mutation.ContentMovieMetadataID(); !ok {
+		return &ValidationError{Name: "content_movie_metadata", err: errors.New(`ent: missing required edge "Content.content_movie_metadata"`)}
 	}
 	return nil
 }
@@ -163,7 +158,7 @@ func (cc *ContentCreate) createSpec() (*Content, *sqlgraph.CreateSpec) {
 	if nodes := cc.mutation.ContentMovieMetadataIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2O,
-			Inverse: true,
+			Inverse: false,
 			Table:   content.ContentMovieMetadataTable,
 			Columns: []string{content.ContentMovieMetadataColumn},
 			Bidi:    false,
@@ -174,7 +169,6 @@ func (cc *ContentCreate) createSpec() (*Content, *sqlgraph.CreateSpec) {
 		for _, k := range nodes {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
-		_node.ID = nodes[0]
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec

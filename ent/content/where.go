@@ -161,7 +161,7 @@ func HasContentMovieMetadata() predicate.Content {
 	return predicate.Content(func(s *sql.Selector) {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(Table, FieldID),
-			sqlgraph.Edge(sqlgraph.O2O, true, ContentMovieMetadataTable, ContentMovieMetadataColumn),
+			sqlgraph.Edge(sqlgraph.O2O, false, ContentMovieMetadataTable, ContentMovieMetadataColumn),
 		)
 		sqlgraph.HasNeighbors(s, step)
 	})

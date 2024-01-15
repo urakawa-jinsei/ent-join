@@ -28,7 +28,7 @@ const (
 	// UploadedContentColumn is the table column denoting the uploaded_content relation/edge.
 	UploadedContentColumn = "uploaded_content_filename"
 	// ContentMovieMetadataTable is the table that holds the content_movie_metadata relation/edge.
-	ContentMovieMetadataTable = "content"
+	ContentMovieMetadataTable = "content_movie_metadata"
 	// ContentMovieMetadataInverseTable is the table name for the ContentMovieMetadata entity.
 	// It exists in this package in order to avoid circular dependency with the "contentmoviemetadata" package.
 	ContentMovieMetadataInverseTable = "content_movie_metadata"
@@ -94,6 +94,6 @@ func newContentMovieMetadataStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(ContentMovieMetadataInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.O2O, true, ContentMovieMetadataTable, ContentMovieMetadataColumn),
+		sqlgraph.Edge(sqlgraph.O2O, false, ContentMovieMetadataTable, ContentMovieMetadataColumn),
 	)
 }

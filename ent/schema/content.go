@@ -41,8 +41,9 @@ func (Content) Edges() []ent.Edge {
 			Ref("contents").
 			Unique().
 			Required(),
-		edge.From("content_movie_metadata", ContentMovieMetadata.Type).
-			Ref("content").
-			Unique(),
+		edge.To("content_movie_metadata", ContentMovieMetadata.Type).
+			StorageKey(edge.Column("filename")).
+			Unique().
+			Required(),
 	}
 }

@@ -44,6 +44,14 @@ func (cmmc *ContentMovieMetadataCreate) SetContentID(id string) *ContentMovieMet
 	return cmmc
 }
 
+// SetNillableContentID sets the "content" edge to the Content entity by ID if the given value is not nil.
+func (cmmc *ContentMovieMetadataCreate) SetNillableContentID(id *string) *ContentMovieMetadataCreate {
+	if id != nil {
+		cmmc = cmmc.SetContentID(*id)
+	}
+	return cmmc
+}
+
 // SetContent sets the "content" edge to the Content entity.
 func (cmmc *ContentMovieMetadataCreate) SetContent(c *Content) *ContentMovieMetadataCreate {
 	return cmmc.SetContentID(c.ID)
@@ -94,9 +102,6 @@ func (cmmc *ContentMovieMetadataCreate) check() error {
 			return &ValidationError{Name: "id", err: fmt.Errorf(`ent: validator failed for field "ContentMovieMetadata.id": %w`, err)}
 		}
 	}
-	if _, ok := cmmc.mutation.ContentID(); !ok {
-		return &ValidationError{Name: "content", err: errors.New(`ent: missing required edge "ContentMovieMetadata.content"`)}
-	}
 	return nil
 }
 
@@ -143,7 +148,7 @@ func (cmmc *ContentMovieMetadataCreate) createSpec() (*ContentMovieMetadata, *sq
 	if nodes := cmmc.mutation.ContentIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2O,
-			Inverse: false,
+			Inverse: true,
 			Table:   contentmoviemetadata.ContentTable,
 			Columns: []string{contentmoviemetadata.ContentColumn},
 			Bidi:    false,
@@ -154,6 +159,7 @@ func (cmmc *ContentMovieMetadataCreate) createSpec() (*ContentMovieMetadata, *sq
 		for _, k := range nodes {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
+		_node.ID = nodes[0]
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec

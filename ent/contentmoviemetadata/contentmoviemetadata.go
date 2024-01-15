@@ -21,7 +21,7 @@ const (
 	// Table holds the table name of the contentmoviemetadata in the database.
 	Table = "content_movie_metadata"
 	// ContentTable is the table that holds the content relation/edge.
-	ContentTable = "content"
+	ContentTable = "content_movie_metadata"
 	// ContentInverseTable is the table name for the Content entity.
 	// It exists in this package in order to avoid circular dependency with the "content" package.
 	ContentInverseTable = "content"
@@ -79,6 +79,6 @@ func newContentStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(ContentInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.O2O, false, ContentTable, ContentColumn),
+		sqlgraph.Edge(sqlgraph.O2O, true, ContentTable, ContentColumn),
 	)
 }

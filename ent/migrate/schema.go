@@ -21,12 +21,6 @@ var (
 		PrimaryKey: []*schema.Column{ContentColumns[0]},
 		ForeignKeys: []*schema.ForeignKey{
 			{
-				Symbol:     "content_content_movie_metadata_content",
-				Columns:    []*schema.Column{ContentColumns[0]},
-				RefColumns: []*schema.Column{ContentMovieMetadataColumns[0]},
-				OnDelete:   schema.NoAction,
-			},
-			{
 				Symbol:     "content_uploaded_content_contents",
 				Columns:    []*schema.Column{ContentColumns[1]},
 				RefColumns: []*schema.Column{UploadedContentColumns[0]},
@@ -45,6 +39,14 @@ var (
 		Name:       "content_movie_metadata",
 		Columns:    ContentMovieMetadataColumns,
 		PrimaryKey: []*schema.Column{ContentMovieMetadataColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "content_movie_metadata_content_content_movie_metadata",
+				Columns:    []*schema.Column{ContentMovieMetadataColumns[0]},
+				RefColumns: []*schema.Column{ContentColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+		},
 	}
 	// UploadedContentColumns holds the columns for the "uploaded_content" table.
 	UploadedContentColumns = []*schema.Column{
@@ -65,11 +67,11 @@ var (
 )
 
 func init() {
-	ContentTable.ForeignKeys[0].RefTable = ContentMovieMetadataTable
-	ContentTable.ForeignKeys[1].RefTable = UploadedContentTable
+	ContentTable.ForeignKeys[0].RefTable = UploadedContentTable
 	ContentTable.Annotation = &entsql.Annotation{
 		Table: "content",
 	}
+	ContentMovieMetadataTable.ForeignKeys[0].RefTable = ContentTable
 	ContentMovieMetadataTable.Annotation = &entsql.Annotation{
 		Table: "content_movie_metadata",
 	}
