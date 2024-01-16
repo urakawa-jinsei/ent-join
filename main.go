@@ -56,6 +56,12 @@ func Query() {
 					t.C(content.FieldID),
 					u.C(contentmoviemetadata.FieldID),
 				)
+			s.Where(
+				entsql.And(
+					entsql.EQ(u.C(contentmoviemetadata.FieldWidth), 1920),
+					entsql.EQ(u.C(contentmoviemetadata.FieldHeight), 1080),
+				),
+			)
 		}).
 		Count(ctx)
 	if err != nil {
