@@ -31,6 +31,7 @@ func Open(databaseUrl string) *ent.Client {
 
 func Query() {
 	client := Open("postgresql://postgres:postgres@127.0.0.1/postgres")
+	defer client.Close()
 
 	// migrate
 	ctx := context.Background()
@@ -39,7 +40,7 @@ func Query() {
 	}
 
 	// INNER JOIN
-	cnt, err := client.Debug().UploadedContent.Query().
+	count, err := client.UploadedContent.Query().
 		Where(uploadedcontent.ID("sample1.mp4")).
 		Modify(func(s *entsql.Selector) {
 			t := entsql.Table(uploadedcontent.ContentsTable)
@@ -53,5 +54,5 @@ func Query() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	log.Println(cnt)
+	log.Println(count)
 }

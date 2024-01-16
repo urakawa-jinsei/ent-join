@@ -1,0 +1,10 @@
+goos: darwin
+goarch: arm64
+pkg: github.com/ent-join
+BenchmarkQuery-8   	      43	  27041099 ns/op	  126797 B/op	    1928 allocs/op
+BenchmarkQuery-8   	      44	  26996943 ns/op	  127110 B/op	    1928 allocs/op
+BenchmarkQuery-8   	      44	  26523704 ns/op	  126839 B/op	    1927 allocs/op
+BenchmarkQuery-8   	      45	  26957560 ns/op	  126908 B/op	    1927 allocs/op
+BenchmarkQuery-8   	      44	  26818100 ns/op	  126443 B/op	    1926 allocs/op
+PASS
+ok  	github.com/ent-join	6.879s
