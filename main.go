@@ -34,14 +34,45 @@ func Query() {
 	client := Open("postgresql://postgres:postgres@127.0.0.1/postgres")
 	defer client.Close()
 
-	// migrate
 	ctx := context.Background()
+
+	// migrate
 	if err := client.Schema.Create(ctx); err != nil {
 		log.Fatal(err)
 	}
 
+	// INSERT
+	tx, err := client.Debug().Tx(ctx)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	contentEntity, err := tx.Content.
+		Create().
+		SetID("content4_sample1.mp4").
+		SetUploadedContentFilename("sample1.mp4").
+		Save(ctx)
+	if err != nil {
+		_ = tx.Rollback()
+		log.Fatal(err)
+	}
+
+	_, err = tx.ContentMovieMetadata.
+		Create().
+		SetWidth(1920).
+		SetHeight(1080).
+		SetContent(contentEntity). // ここがポイント 対応するedgeを追加
+		Save(ctx)
+	if err != nil {
+		_ = tx.Rollback()
+		log.Fatal(err)
+	}
+
+	tx.Commit()
+
 	// INNER JOIN
-	count, err := client.Debug().UploadedContent.Query().
+	count, err := client.Debug().UploadedContent.
+		Query().
 		Where(uploadedcontent.ID("sample1.mp4")).
 		Modify(func(s *entsql.Selector) {
 			t := entsql.Table(uploadedcontent.ContentsTable)
